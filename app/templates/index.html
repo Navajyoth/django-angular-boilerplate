@@ -1,0 +1,20 @@
+<html>
+<head>
+<base href="/"/>
+<title>App Name| </title>
+{% include 'stylesheets.html' %}
+</head>
+
+<body ng-app="app">
+<div id="wrapper">
+  {% include 'navigationbar.html'%}
+
+  <div id="main" ng-controller="MainCtrl">
+    <div ui-view></div>
+  </div>
+
+</div>
+{% include 'javascripts.html'%}
+
+</body>
+</html>
