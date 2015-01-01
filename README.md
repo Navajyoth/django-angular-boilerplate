@@ -1,4 +1,4 @@
-django-boilerplate with authentication
+Boilerplate for Django-AngularJS single page application
 ======================================
 
 Server
