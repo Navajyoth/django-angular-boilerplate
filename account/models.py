@@ -1,16 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
-
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 UT_ADMIN = 1
-UT_DOCTOR = 2
-UT_PATIENT = 3
+UT_TYPE1 = 3
 UT_UNKNOWN = 0
 
 USER_TYPES = (
     (UT_ADMIN, "Admin"),
-    (UT_DOCTOR, "Agent"),
-    (UT_PATIENT, "Patient"),
+    (UT_TYPE1, "Patient"),
 )
 
 
@@ -22,23 +23,16 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=UserManager.normalize_email(email),
             name=name,
-            #phone=phone,
             type=u_type)
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_patient(self, email, phone, name):
+    def create_type1_user(self, email, phone, name):
         user = self.create_user(email,
                                 name=name,
-                                u_type=UserManager.UT_PATIENT)
-        return user
-
-    def create_doctor(self, email, phone, name):
-        user = self.create_user(email,
-                                name=name,
-                                u_type=UserManager.UT_DOCTOR)
+                                u_type=UT_TYPE1)
         return user
 
     def create_superuser(self, email, password, name):
@@ -54,7 +48,6 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     email = models.EmailField(max_length=254, unique=True, db_index=True)
     name = models.CharField(max_length=64)
-    image = models.ImageField(upload_to='user_images', blank=True, null=True)
     type = models.PositiveSmallIntegerField(choices=USER_TYPES, default=UT_UNKNOWN)
 
     is_active = models.BooleanField(default=True)
@@ -94,7 +87,7 @@ class User(AbstractBaseUser):
         return self.is_admin
 
 
-# @receiver(post_save, sender=get_user_model())
-# def create_token(sender, instance=None, created=False, **kwargs):
-#     if created:
-#         Token.objects.create(user=instance)
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
