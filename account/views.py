@@ -9,7 +9,7 @@ from .serializers import UserSerializer
 class LoginView(views.APIView):
 
     def post(self, request):
-        data = json.loads(request.body)
+        data = request.POST
         email = data.get('email', None)
         password = data.get('password', None)
         user = authenticate(email=email, password=password)
